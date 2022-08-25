@@ -19,6 +19,8 @@ public class Address {
     private String gia;
     private String ddd;
     private String siafi;
+    @OneToOne(mappedBy = "address")
+    private Consumer consumer;
 
     public String getCep() {
         return cep;
@@ -114,6 +116,14 @@ public class Address {
 
     public void setNumero(Integer numero) {
         this.numero = numero;
+    }
+
+    public Consumer getConsumer() {
+        return consumer;
+    }
+
+    public void setConsumer(Consumer consumer) {
+        this.consumer = consumer;
     }
 
     @Override

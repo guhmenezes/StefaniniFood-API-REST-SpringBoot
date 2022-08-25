@@ -108,7 +108,7 @@ public class ConsumerEditRequest {
 //    }
 
     public Consumer update(String cpf, ConsumerRepository consumerRepository) {
-        Consumer consumer = consumerRepository.findByCpf(cpf).get(0);
+        Consumer consumer = consumerRepository.findByCpf(cpf).get();
         consumer.setPassword(this.password);
         consumer.setEmail(this.email);
         consumer.setPhone(this.phone);

@@ -30,6 +30,9 @@ public interface OrderedItensRepository extends JpaRepository<OrderedItens,Long>
             "           FROM ordered_itens oi" +
             "           INNER JOIN product p" +
             "           ON oi.product_id = p.id" +
-            "           WHERE p.company_id = ?1 ;", nativeQuery = true)
+            "           INNER JOIN _order o" +
+            "           ON oi.order_id = o.id" +
+            "           WHERE o.status = 'EM_PREPARACAO' AND" +
+            "           p.company_id = ?1 ;", nativeQuery = true)
     List<OrderedItens> findByCompanyId(Long id);
 }

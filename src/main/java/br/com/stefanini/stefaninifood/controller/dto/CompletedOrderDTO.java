@@ -6,15 +6,13 @@ import java.util.stream.Collectors;
 
 public class CompletedOrderDTO {
     private BigInteger id;
-    private String cliente;
     private String produto;
     private Double total;
 
     public CompletedOrderDTO(Object[] sales) {
         this.id = (BigInteger) sales[0];
-        this.cliente = (String) sales[1];
-        this.produto = (String) sales[2];
-        this.total = (Double) sales[3];
+        this.produto = (String) sales[1];
+        this.total = (Double) sales[2];
     }
 
     public static List<CompletedOrderDTO> converter(List<Object[]> itens){
@@ -27,14 +25,6 @@ public class CompletedOrderDTO {
 
     public void setId(BigInteger id) {
         this.id = id;
-    }
-
-    public String getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(String cliente) {
-        this.cliente = cliente;
     }
 
     public String getProduto() {
@@ -52,6 +42,8 @@ public class CompletedOrderDTO {
     public void setTotal(Double total) {
         this.total = total;
     }
+
+
 }
 
 

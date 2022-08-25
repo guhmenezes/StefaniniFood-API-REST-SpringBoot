@@ -14,24 +14,18 @@ public interface OrderRepository extends JpaRepository <Order, Long> {
 
     @Query(value = "SELECT o.id, p.nome," +
             "            oi.qty," +
-            "            c.client_name," +
-            "            c.phone," +
             "            co.id as company_id," +
-            "            c.id as consumer_id" +
             "            FROM product p" +
             "            INNER JOIN ordered_itens oi" +
             "            ON oi.product_id = p.id" +
             "            INNER JOIN _order o" +
             "           ON o.id = oi.order_id" +
-            "           INNER JOIN consumer c" +
-            "           ON o.consumer_id = c.id" +
             "           INNER JOIN company co" +
             "           ON p.company_id = co.id" +
             "           WHERE o.status = 'EM_PREPARACAO' AND co.id = ?1 ;",nativeQuery = true)
     List<Object[]> findReceivedOrdersByCompany(Long id);
 
     @Query(value = "SELECT o.id," +
-            "            c.client_name," +
             "            p.nome," +
             "            o.total," +
             "            co.empresa" +
@@ -40,8 +34,6 @@ public interface OrderRepository extends JpaRepository <Order, Long> {
             "            ON oi.product_id = p.id" +
             "            INNER JOIN _order o" +
             "           ON o.id = oi.order_id" +
-            "           INNER JOIN consumer c" +
-            "           ON o.consumer_id = c.id" +
             "           INNER JOIN company co" +
             "           ON p.company_id = co.id" +
             "           WHERE o.status = 'FINALIZADO' AND co.id = ?1 ;",nativeQuery = true)

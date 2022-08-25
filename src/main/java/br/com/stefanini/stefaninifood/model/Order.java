@@ -3,6 +3,7 @@ package br.com.stefanini.stefaninifood.model;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,6 @@ public class Order {
     private LocalDateTime createAt = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     private StatusOrder status = StatusOrder.AGUARDANDO;
-//    private Company company;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderedItens> products = new ArrayList<>();
 
@@ -99,5 +99,21 @@ public class Order {
 
     public void setStatus(StatusOrder status) {
         this.status = status;
+    }
+
+    public List<OrderedItens> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<OrderedItens> products) {
+        this.products = products;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "Pedido Nº " + id +
+                ", Produto: " + products.toString() +
+                '}';
     }
 }

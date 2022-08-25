@@ -25,8 +25,14 @@ public class Consumer {
     private String password;
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "consumer")
+    private List<Order> order;
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
+
+    private Boolean active = true;
+
+    private LocalDateTime deactivedAt;
 
     public Consumer(){
 
@@ -114,4 +120,30 @@ public class Consumer {
     public LocalDateTime getCreated() {
         return this.createdAt;
     }
+
+    public List<Order> getOrder() {
+        return order;
+    }
+
+    public void setOrder(List<Order> order) {
+        this.order = order;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.deactivedAt = LocalDateTime.now();
+        this.active = active;
+    }
+
+    public LocalDateTime getDeactivedAt() {
+        return deactivedAt;
+    }
+
+    public void setDeactivedAt(LocalDateTime deactivedAt) {
+        this.deactivedAt = deactivedAt;
+    }
+
 }

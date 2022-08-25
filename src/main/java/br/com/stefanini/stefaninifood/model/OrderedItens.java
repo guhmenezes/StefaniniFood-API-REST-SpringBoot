@@ -10,7 +10,7 @@ public class OrderedItens {
     private Long id;
     private Double unitPrice;
     private Integer qty;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Order order;
     @ManyToOne
     private Product product;
@@ -67,5 +67,10 @@ public class OrderedItens {
 
     public Double getTotal(){
         return this.unitPrice * this.qty;
+    }
+
+    @Override
+    public String toString() {
+        return product.getName() ;
     }
 }

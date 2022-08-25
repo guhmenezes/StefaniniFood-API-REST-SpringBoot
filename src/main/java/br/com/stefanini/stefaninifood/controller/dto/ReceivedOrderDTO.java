@@ -19,9 +19,9 @@ public class ReceivedOrderDTO {
         this.id = (BigInteger) order[0];
         this.productName = (String) order[1];
         this.qty = (Integer) order[2];
-        this.consumerName = (String) order[3];
-        this.consumerPhone = (String) order [4];
-        this.address = (String) order[6];
+//        this.consumerName = (String) order[3];
+//        this.consumerPhone = (String) order [4];
+//        this.address = (String) order[6];
     }
 
     public static List<ReceivedOrderDTO> converter(List<Object[]> itens) {

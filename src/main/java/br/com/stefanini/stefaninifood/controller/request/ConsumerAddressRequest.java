@@ -1,22 +1,30 @@
 package br.com.stefanini.stefaninifood.controller.request;
 
 import br.com.stefanini.stefaninifood.model.Address;
+import br.com.stefanini.stefaninifood.repository.ConsumerRepository;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class ConsumerAddressRequest {
-    @NotBlank
+    @NotNull
+    @NotBlank @Length(min = 8, max = 9)
     private String zipCode;
-    @NotBlank
+    @NotBlank @Length(min = 6, max = 255)
     private String street;
-    @NotBlank
+    @DecimalMax("9999")
     private Integer number;
-    private String complement;
-    @NotBlank
+    @Length(max = 255)
+    private String complement = "N/A";
+    @NotBlank @Length(min = 6, max = 255)
     private String district;
-    @NotBlank
+    @NotBlank @Length(min = 3, max = 30)
     private String city;
-    @NotBlank
+
+    @NotBlank @Length(min = 2, max = 2)
     private String uf;
 
     public String getZipCode() {
@@ -75,7 +83,15 @@ public class ConsumerAddressRequest {
         this.uf = uf;
     }
 
-    public void setAdress(){
-        // atualiza endereço
+    public Address update(Long id, ConsumerRepository consumerRepository) {
+        Address address = consumerRepository.findById(id).get().getAddress();
+        address.setCep(zipCode);
+        address.setLogradouro(street);
+        address.setNumero(number);
+        address.setComplemento(complement);
+        address.setBairro(district);
+        address.setLocalidade(city);
+        address.setUf(uf);
+        return address;
     }
 }
