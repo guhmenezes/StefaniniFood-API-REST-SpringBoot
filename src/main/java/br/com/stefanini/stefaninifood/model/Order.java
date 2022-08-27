@@ -1,10 +1,13 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "_order")
@@ -14,9 +17,12 @@ public class Order {
     @GeneratedValue
     private Long id;
     private Double total = 0.0;
+
+    @JsonIgnore
     @ManyToOne
     private Consumer consumer;
-    private LocalDateTime createAt = LocalDateTime.now();
+
+    private LocalDateTime boughtAt = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     private StatusOrder status = StatusOrder.AGUARDANDO;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
@@ -57,6 +63,7 @@ public class Order {
     public void addItem(OrderedItens item){
         this.total += item.getTotal();
         System.out.println(total);
+        this.setTime();
         item.setOrder(this);
         this.products.add(item);
     }
@@ -85,12 +92,12 @@ public class Order {
         this.consumer = consumer;
     }
 
-    public LocalDateTime getCreateAt() {
-        return createAt;
+    public LocalDateTime getTime() {
+        return boughtAt;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setTime() {
+        this.boughtAt = LocalDateTime.now();
     }
 
     public StatusOrder getStatus() {
@@ -113,7 +120,7 @@ public class Order {
     public String toString() {
         return "{" +
                 "Pedido Nº " + id +
-                ", Produto: " + products.toString() +
+                ", Produto: " + products.stream().map((i)-> i.getProduct().getName()).collect(Collectors.joining()) +
                 '}';
     }
 }

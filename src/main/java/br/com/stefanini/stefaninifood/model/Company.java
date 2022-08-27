@@ -1,5 +1,7 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,7 @@ public class Company implements Serializable{
     private String phone;
     @NotNull
     private String password;
+//    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "company")
     private List<Product> menu;
 

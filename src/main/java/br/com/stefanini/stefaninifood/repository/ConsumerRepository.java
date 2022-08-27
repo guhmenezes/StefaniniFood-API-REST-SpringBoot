@@ -14,11 +14,14 @@ public interface ConsumerRepository extends JpaRepository<Consumer,Long> {
     @Query(value = "select * from consumer where active = true",nativeQuery = true)
     List<Consumer> findAll();
 
-    @Query(value = "select * from consumer where active = true",nativeQuery = true)
+    @Query(value = "select * from consumer where active = true AND cpf = ?1 ",nativeQuery = true)
     Optional<Consumer> findByCpf(String cpf);
 
     @Query(value = "select * from consumer where active = false", nativeQuery = true)
     Optional<Consumer> findDeactivatedByCpf(String cpf);
 
     void deleteByCpf(String cpf);
+
+    @Query(value = "select c.* from consumer c INNER JOIN _order o ON o.consumer_id = c.id where o.id = ?1", nativeQuery = true)
+    Consumer findConsumerByOrderId(BigInteger id);
 }

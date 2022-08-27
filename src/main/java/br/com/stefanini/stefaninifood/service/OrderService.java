@@ -1,9 +1,6 @@
 package br.com.stefanini.stefaninifood.service;
 
-import br.com.stefanini.stefaninifood.controller.dto.CartDTO;
-import br.com.stefanini.stefaninifood.controller.dto.CompanyDTO;
-import br.com.stefanini.stefaninifood.controller.dto.OrderedItensDTO;
-import br.com.stefanini.stefaninifood.controller.dto.ProductDTO;
+import br.com.stefanini.stefaninifood.controller.dto.*;
 import br.com.stefanini.stefaninifood.controller.request.OrderedItensRequest;
 import br.com.stefanini.stefaninifood.model.*;
 import br.com.stefanini.stefaninifood.repository.*;
@@ -11,11 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class OrderService {
@@ -37,7 +35,8 @@ public class OrderService {
 
     public List<CompanyDTO> retrieveCompaniesWithMenu(){
         List<Company> companies = companyRepository.findAll();
-        return CompanyDTO.converter(companies);
+        List<CompanyDTO> companyDTO = companies.stream().map((c) -> getAllProducts(c)).collect(Collectors.toList());
+        return companyDTO;
     }
 
     public ResponseEntity<?> retrieveMenuByIdCompany(Long id){
@@ -59,7 +58,7 @@ public class OrderService {
     }
 
     public ResponseEntity<?> cartByConsumerId(Long id){
-        List<Object[]> itens = orderedItensRepository.findByConsumerId(id);
+        List<Object[]> itens = orderedItensRepository.findCartByConsumerId(id);
         if(itens.size() == 0){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrinho vazio ou cliente inexistente");
         }
@@ -77,9 +76,17 @@ public class OrderService {
                     i.setStatus(StatusOrder.EM_PREPARACAO);
                     orderRepository.save(i);
                 });
-//                List<Object[]> purchased = orderedItensRepository.findByConsumerId(id);
-//                List<CartDTO> response = CartDTO.converter(purchased);
-                return ResponseEntity.status(HttpStatus.OK).body("Pedido realizado com sucesso");
+                List<OrderedItens> bought = orderedItensRepository.findBoughtByConsumerId(id);
+                List<BuyDTO> buyDTO = BuyDTO.converter(bought);
+                buyDTO.stream().map((o) -> {
+                    System.out.println((o.getProductId()).getClass().getSimpleName());
+                Company company = companyRepository.findCompanyByProduct(o.getProductId());
+                Long companyId = company.getId();
+                List<Object[]> companyDemand = companyRepository.findOrdersByCompanyId(companyId);
+                o.setEstimatedTime(companyDemand.size() * 3);
+                return o;
+                }).collect(Collectors.toList());
+                return ResponseEntity.status(HttpStatus.OK).body(buyDTO);
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Endereço de entrega não informado");
         }
@@ -88,11 +95,22 @@ public class OrderService {
 
     public ResponseEntity<?> removeProduct(Long id){
         try {
+//            Order order = orderRepository.findById(id).get();
+//            Consumer consumer = consumerRepository.findConsumerByOrderId(BigInteger.valueOf(id));
+//            order.setConsumer(null);
             orderRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body("Produto removido");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");
         }
+    }
+
+    public CompanyDTO getAllProducts(Company company){
+        List<Product> itens = productRepository.findByCompanyId(company.getId());
+        List<ProductDTO> products = ProductDTO.converter(itens);
+        CompanyDTO companyDTO = new CompanyDTO(company);
+        companyDTO.setProducts(products);
+        return companyDTO;
     }
 
 }

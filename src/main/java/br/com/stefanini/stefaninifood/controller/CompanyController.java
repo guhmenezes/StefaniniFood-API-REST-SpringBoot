@@ -1,29 +1,20 @@
 package br.com.stefanini.stefaninifood.controller;
 
-import br.com.stefanini.stefaninifood.controller.dto.CompletedOrderDTO;
-import br.com.stefanini.stefaninifood.controller.dto.ReceivedOrderDTO;
-import br.com.stefanini.stefaninifood.model.Order;
-import br.com.stefanini.stefaninifood.model.StatusOrder;
-import br.com.stefanini.stefaninifood.repository.ConsumerRepository;
-import br.com.stefanini.stefaninifood.repository.OrderRepository;
-import br.com.stefanini.stefaninifood.repository.OrderedItensRepository;
+import br.com.stefanini.stefaninifood.controller.request.CompanyRequest;
 import br.com.stefanini.stefaninifood.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 @RestController
 public class CompanyController {
 
     @Autowired
     CompanyService service;
+
 
     @GetMapping("/em-aberto/{idCompany}")
     public ResponseEntity<?> retrieveOrdersByCompany(@PathVariable("idCompany") Long id){
@@ -42,4 +33,18 @@ public class CompanyController {
         ResponseEntity<?> response = service.salesListById(id);
         return response;
     }
+
+    @PostMapping("/cadastro-empresa")
+    public ResponseEntity<?> createCompany(@RequestBody @Valid CompanyRequest companyRequest){
+        ResponseEntity<?> response = service.createCompany(companyRequest);
+        return response;
+    }
+
+    @DeleteMapping("/empresa/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteConsumerById(@PathVariable Long id) {
+        ResponseEntity<?> response = service.deleteCompanyById(id);
+        return response;
+    }
+
 }

@@ -1,5 +1,6 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import javax.persistence.*;
@@ -25,8 +26,9 @@ public class Consumer {
     private String password;
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "consumer")
+    @OneToMany(mappedBy = "consumer", cascade = CascadeType.ALL)
     private List<Order> order;
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 

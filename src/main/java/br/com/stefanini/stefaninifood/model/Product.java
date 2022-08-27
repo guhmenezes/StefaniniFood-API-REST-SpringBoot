@@ -1,15 +1,14 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -44,10 +43,12 @@ public class Product implements Serializable {
     private Double price;
     @NotNull
     private String description;
+    @JsonIgnore
     @ManyToOne
     private Company company;
-//    @ManyToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<OrderedItens> itens;
+
+    @OneToMany(mappedBy = "product")
+    private List<OrderedItens> products = new ArrayList<>();
 
 
     public Product() {
@@ -101,23 +102,22 @@ public class Product implements Serializable {
         System.out.println(this.company);
     }
 
-//    public List<Order> getOrderedItems() {
-//        return orderedItems;
-//    }
-//
-//    public void setOrderedItems(List<Order> orderedItems) {
-//        this.orderedItems = orderedItems;
-//    }
+    public List<OrderedItens> getProducts() {
+        return products;
+    }
 
+    public void setProducts(List<OrderedItens> products) {
+        this.products = products;
+    }
 
-//    @Override
-//    public String toString() {
-//        return "Product{" +
-////                "id=" + id +
-//                ", name='" + name + '\'' +
-//                ", price=" + price +
-//                ", company=" + company.getName() +
-//                '}';
-//    }
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", company=" + company.getName() +
+                '}';
+    }
 }
 

@@ -1,17 +1,20 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
 public class OrderedItens {
-//    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue
     private Long id;
     private Double unitPrice;
     private Integer qty;
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
     private Order order;
+    @JsonIgnore
     @ManyToOne
     private Product product;
 
@@ -71,6 +74,11 @@ public class OrderedItens {
 
     @Override
     public String toString() {
-        return product.getName() ;
+        return "{" +
+                "Pedido Nº: " + this.getOrder().getId() +
+                ", Cliente: " + this.getOrder().getConsumer().getName() +
+                ", Produto: " + this.getProduct().getName() +
+                ", Status: " + this.getOrder().getStatus() +
+                "}";
     }
 }

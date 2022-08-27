@@ -1,6 +1,7 @@
 package br.com.stefanini.stefaninifood.service;
 
 import br.com.stefanini.stefaninifood.controller.dto.AddressDTO;
+import br.com.stefanini.stefaninifood.controller.dto.BuyDTO;
 import br.com.stefanini.stefaninifood.controller.dto.CartDTO;
 import br.com.stefanini.stefaninifood.controller.dto.ConsumerDTO;
 import br.com.stefanini.stefaninifood.controller.request.ConsumerAddressRequest;
@@ -8,6 +9,7 @@ import br.com.stefanini.stefaninifood.controller.request.ConsumerEditRequest;
 import br.com.stefanini.stefaninifood.controller.request.ConsumerRequest;
 import br.com.stefanini.stefaninifood.model.Address;
 import br.com.stefanini.stefaninifood.model.Consumer;
+import br.com.stefanini.stefaninifood.model.OrderedItens;
 import br.com.stefanini.stefaninifood.repository.AddressRepository;
 import br.com.stefanini.stefaninifood.repository.ConsumerRepository;
 import br.com.stefanini.stefaninifood.repository.OrderedItensRepository;
@@ -34,7 +36,7 @@ public class ConsumerService {
         try {
             List<Consumer> list = consumerRepository.findAll();
             if(list.size() > 0) {
-                List<ConsumerDTO> consumers = list.stream().map((c)->getOrders(c)).collect(Collectors.toList());
+                List<ConsumerDTO> consumers = list.stream().map((c)->getAllOrders(c)).collect(Collectors.toList());
                 return ResponseEntity.status(HttpStatus.OK).body(consumers);
             }
             return ResponseEntity.status(HttpStatus.OK).body("Nenhum cliente se cadastrou ainda. Que tal ser o primeiro?");
@@ -46,7 +48,9 @@ public class ConsumerService {
     public ResponseEntity<?> retrieveByCpf(String cpf) {
         try {
             Consumer consumer = consumerRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            return ResponseEntity.status(HttpStatus.OK).body(ConsumerDTO.converter(Arrays.asList(consumer)));
+            ConsumerDTO consumerDTO = getAllOrders(consumer);
+            return ResponseEntity.status(HttpStatus.OK).body(consumerDTO);
+//            return ResponseEntity.status(HttpStatus.OK).body(ConsumerDTO.converter(Arrays.asList(consumer)));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
         }
@@ -86,7 +90,7 @@ public class ConsumerService {
     public ResponseEntity<?> deleteConsumerByCpf(String cpf) {
         try {
             Consumer consumer = consumerRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException());
-            List<Object[]> itens = orderedItensRepository.findByConsumerId(consumer.getId());
+            List<Object[]> itens = orderedItensRepository.findAllByConsumerId(consumer.getId());
             if(itens.size() == 0){
                 consumerRepository.delete(consumer);
                 return ResponseEntity.status(HttpStatus.OK).body("Removido usuário com CPF " + cpf);
@@ -113,18 +117,24 @@ public class ConsumerService {
             consumer.setActive(true);
             consumer.setDeactivedAt(null);
             consumerRepository.save(consumer);
-            ConsumerDTO consumerDTO = getOrders(consumer);
+            ConsumerDTO consumerDTO = getAllOrders(consumer);
             return ResponseEntity.status(HttpStatus.OK).body(consumerDTO);
         } catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário já ativo ou inexistete");
         }
     }
 
-    public ConsumerDTO getOrders(Consumer consumer){
-        List<Object[]> itens = orderedItensRepository.findByConsumerId(consumer.getId());
+    public ConsumerDTO getAllOrders(Consumer consumer){
+        List<Object[]> itens = orderedItensRepository.findAllByConsumerId(consumer.getId());
         List<CartDTO> cart = CartDTO.converter(itens);
         ConsumerDTO consumerDTO = new ConsumerDTO(consumer);
         consumerDTO.setOrders(cart);
         return consumerDTO;
+    }
+
+    public ResponseEntity<?> retrieveOrders(Long id) {
+        List<OrderedItens> bought = orderedItensRepository.findBoughtByConsumerId(id);
+        List<BuyDTO> buyDTO = BuyDTO.converter(bought);
+        return ResponseEntity.status(HttpStatus.OK).body(buyDTO);
     }
 }

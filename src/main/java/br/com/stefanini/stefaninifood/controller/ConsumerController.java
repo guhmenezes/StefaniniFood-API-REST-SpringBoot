@@ -31,6 +31,12 @@ public class ConsumerController {
         return response;
     }
 
+    @GetMapping("/usuario/pedidos/{id}")
+    public ResponseEntity<?> retrieveOrders(@PathVariable Long id){
+        ResponseEntity<?> response = service.retrieveOrders(id);
+        return response;
+    }
+
     @PostMapping("/cadastro")
     public ResponseEntity<?> createConsumer(@RequestBody @Valid ConsumerRequest consumerRequest) {
         ResponseEntity<?> response = service.createConsumer(consumerRequest);
