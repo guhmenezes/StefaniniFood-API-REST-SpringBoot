@@ -7,25 +7,26 @@ import java.util.stream.Collectors;
 
 public class OrderedItensDTO {
 
+    private Long productId;
     private String productName;
     private Integer qty;
     private Double priceUnit;
     private Double total;
 
+    public OrderedItensDTO() {
+    }
+
     public OrderedItensDTO(OrderedItens orderedItens) {
+        this.productId = orderedItens.getProduct().getId();
         this.productName = orderedItens.getProduct().getName();
         this.qty = orderedItens.getQty();
         this.priceUnit = orderedItens.getUnitPrice();
         this.total = orderedItens.getOrder().getTotal();
     }
 
-    public static List<OrderedItensDTO> converter(List<OrderedItens> itens) {
-        return itens.stream().map(OrderedItensDTO::new).collect(Collectors.toList());
+    public static List<BuyDTO> converter(List<OrderedItens> itens) {
+        return itens.stream().map(BuyDTO::new).collect(Collectors.toList());
     }
-
-//    public static List<OrderedItensDTO> converterToCart(List<Order> itens) {
-//        return itens.stream().map(OrderedItensDTO::new).collect(Collectors.toList());
-//    }
 
     public String getProductName() {
         return productName;
@@ -57,5 +58,13 @@ public class OrderedItensDTO {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 }

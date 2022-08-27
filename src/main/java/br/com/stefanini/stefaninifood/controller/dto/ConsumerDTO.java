@@ -1,6 +1,7 @@
 package br.com.stefanini.stefaninifood.controller.dto;
 
 import br.com.stefanini.stefaninifood.model.Consumer;
+import br.com.stefanini.stefaninifood.model.Order;
 import br.com.stefanini.stefaninifood.model.OrderedItens;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class ConsumerDTO {
     private String name;
     private String cpf;
     private LocalDateTime createdAt;
-    private String addres;
+    private String address;
 
     private List<CartDTO> orders = new ArrayList<>();
 
@@ -24,10 +25,12 @@ public class ConsumerDTO {
         this.cpf = consumer.getCpf();
         this.createdAt = consumer.getCreated();
         try {
-            this.addres = consumer.getAddress().toString();
+            this.address = consumer.getAddress().toString();
         } catch (Exception e){
-            this.addres = "Endereço não localizado";
+            this.address = "Endereço não localizado";
         }
+
+//        this.orders = consumer.getOrder();
     }
 
     public static List<ConsumerDTO> converter(List<Consumer> consumers) {
@@ -69,11 +72,11 @@ public class ConsumerDTO {
     }
 
     public String getAddres() {
-        return addres;
+        return address;
     }
 
     public void setAddres(String addres) {
-        this.addres = addres;
+        this.address = addres;
     }
 
     public List<CartDTO> getOrders() {
@@ -83,4 +86,13 @@ public class ConsumerDTO {
     public void setOrders(List<CartDTO> orders) {
         this.orders = orders;
     }
+
+
+//    public List<Order> getOrders() {
+//        return orders;
+//    }
+//
+//    public void setOrders(List<Order> orders) {
+//        this.orders = orders;
+//    }
 }

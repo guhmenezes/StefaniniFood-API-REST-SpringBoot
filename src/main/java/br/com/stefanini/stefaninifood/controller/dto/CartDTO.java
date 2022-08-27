@@ -1,7 +1,5 @@
 package br.com.stefanini.stefaninifood.controller.dto;
 
-import br.com.stefanini.stefaninifood.model.Order;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,19 +22,10 @@ public class CartDTO {
         this.status = (String) itens[5];
     }
 
-//    public CartDTO(Order item) {
-//        this.id = BigInteger.valueOf(item.getId());
-//        this.total = item.getTotal();
-//        this.status = item.getStatus().toString();
-//    }
-
     public static List<CartDTO> converter(List<Object[]> itens) {
         return itens.stream().map(CartDTO::new).collect(Collectors.toList());
     }
 
-//    public static List<CartDTO> update(List<Order> itens) {
-//        return itens.stream().map(CartDTO::new).collect(Collectors.toList());
-//    }
 
     public BigInteger getId() {
         return id;

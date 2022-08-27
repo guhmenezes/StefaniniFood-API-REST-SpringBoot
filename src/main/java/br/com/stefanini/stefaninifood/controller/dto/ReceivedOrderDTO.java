@@ -1,6 +1,7 @@
 package br.com.stefanini.stefaninifood.controller.dto;
 
 import br.com.stefanini.stefaninifood.model.Address;
+import br.com.stefanini.stefaninifood.model.Consumer;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -19,9 +20,6 @@ public class ReceivedOrderDTO {
         this.id = (BigInteger) order[0];
         this.productName = (String) order[1];
         this.qty = (Integer) order[2];
-//        this.consumerName = (String) order[3];
-//        this.consumerPhone = (String) order [4];
-//        this.address = (String) order[6];
     }
 
     public static List<ReceivedOrderDTO> converter(List<Object[]> itens) {
@@ -74,5 +72,11 @@ public class ReceivedOrderDTO {
 
     public void setConsumerPhone(String consumerPhone) {
         this.consumerPhone = consumerPhone;
+    }
+
+    public void setConsumer(Consumer consumer){
+        this.consumerName = consumer.getName();
+        this.consumerPhone = consumer.getPhone();
+        this.address = consumer.getAddress().toString();
     }
 }

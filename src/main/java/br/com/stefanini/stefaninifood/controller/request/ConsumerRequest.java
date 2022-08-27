@@ -86,15 +86,7 @@ public class ConsumerRequest {
     public Consumer toModel(AddressRepository addressRepository){
         RestTemplate rt = new RestTemplate();
         Address address = rt.getForObject("https://viacep.com.br/ws/"+zipCode.replaceAll("[^a-zA-Z0-9]", "")+"/json", Address.class);
-//        System.out.println(address);
         address.setNumero(number);
-//        if(address.getLogradouro() == null || address.getLogradouro().isEmpty()){
-////            throw new NullAddressException();
-//            address.setCep(null);
-//            address.setBairro(null);
-//            address.setComplemento(null);
-//            address.setUf(null);
-//        }
             addressRepository.save(address);
         return new Consumer(name,cpf,email,phone,password, address);
     }
