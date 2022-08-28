@@ -40,7 +40,7 @@ public class SwaggerConfig {
                         "ghmenezes@stefanini.com"
                 ),
                 "Apache License Version 2.0",
-                "https://www.apache.org/licesen.html",
+                "https://www.apache.org/licenses.html",
                 new ArrayList<VendorExtension>()
         );
         return apiInfo;
