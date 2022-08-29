@@ -6,6 +6,8 @@ import br.com.stefanini.stefaninifood.service.OrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +30,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "menu")
     @ApiOperation(value = "Retorna o cardápio de uma empresa pelo ID")
     public ResponseEntity<?> retrieveMenuByIdCompany(@PathVariable Long id){
         ResponseEntity<?> response = service.retrieveMenuByIdCompany(id);
@@ -49,6 +52,7 @@ public class OrderController {
     }
 
     @PutMapping("/buy/{idConsumer}")
+    @CacheEvict(value = "openedOrders", allEntries = true)
     @ApiOperation(value = "Efetua a compra de todos os produtos no carrinho do cliente pelo ID.")
     public ResponseEntity<?> confirmOrder(@PathVariable("idConsumer") Long id){
         ResponseEntity<?> response = service.confirmOrder(id);
