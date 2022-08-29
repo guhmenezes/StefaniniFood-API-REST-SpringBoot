@@ -28,6 +28,10 @@ PostgreSQL 14.4;
 Microservices Architecture;  
 Controller-Service-Repository Design Pattern;  
   
-***
+  **Endpoints:**  
+![localhost_8081_swagger-ui html](https://user-images.githubusercontent.com/91099666/187253286-87828e08-eaed-43cc-b6d7-5e357c2b3988.png)
 
+
+
+***
 Made available by [**guhmenezes**](https://github.com/guhmenezes).
