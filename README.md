@@ -9,7 +9,16 @@
 </p></h2>
 
 
-This repository was created for Stefanini's PFT 2022.  
+<h5 align="center">This repository was created for Stefanini's PFT 2022. 
+See also:    <br>   <br>
+
+
+[**StefaniniFood JSF**](https://github.com/guhmenezes/StefaniniFood-JSF)  
+
+[**Stefanini Aulas Java**](https://github.com/guhmenezes/Stefanini-nivelamento-java)  
+</h5>
+
+***
    
    **The project uses:**  
 JDK 8+;  
