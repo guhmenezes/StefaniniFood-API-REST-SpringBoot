@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @Service
 public class ConsumerService {
     @Autowired
-    private ConsumerRepository consumerRepository;
+    ConsumerRepository consumerRepository;
     @Autowired
-    private AddressRepository addressRepository;
+    AddressRepository addressRepository;
 
     @Autowired
-    private OrderedItensRepository orderedItensRepository;
+    OrderedItensRepository orderedItensRepository;
 
     public ResponseEntity<?> retrieveAll(){
         try {

@@ -9,34 +9,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class OrderService {
     @Autowired
-    private ConsumerRepository consumerRepository;
+    ConsumerRepository consumerRepository;
     @Autowired
-    private ProductRepository productRepository;
+    ProductRepository productRepository;
     @Autowired
-    private CompanyRepository companyRepository;
+    CompanyRepository companyRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    OrderRepository orderRepository;
 
     @Autowired
-    private OrderedItensRepository orderedItensRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
+    OrderedItensRepository orderedItensRepository;
 
     public List<CompanyDTO> retrieveCompaniesWithMenu(){
         List<Company> companies = companyRepository.findAll();
-        List<CompanyDTO> companyDTO = companies.stream().map((c) -> getAllProducts(c)).collect(Collectors.toList());
-        return companyDTO;
+        return companies.stream().map(this::getAllProducts).collect(Collectors.toList());
     }
 
     public ResponseEntity<?> retrieveMenuByIdCompany(Long id){
@@ -78,13 +72,12 @@ public class OrderService {
                 });
                 List<OrderedItens> bought = orderedItensRepository.findBoughtByConsumerId(id);
                 List<BuyDTO> buyDTO = BuyDTO.converter(bought);
-                buyDTO.stream().map((o) -> {
+                buyDTO = buyDTO.stream().peek((o) -> {
                     System.out.println((o.getProductId()).getClass().getSimpleName());
                 Company company = companyRepository.findCompanyByProduct(o.getProductId());
                 Long companyId = company.getId();
                 List<Object[]> companyDemand = companyRepository.findOrdersByCompanyId(companyId);
                 o.setEstimatedTime(companyDemand.size() * 3);
-                return o;
                 }).collect(Collectors.toList());
                 return ResponseEntity.status(HttpStatus.OK).body(buyDTO);
             }
