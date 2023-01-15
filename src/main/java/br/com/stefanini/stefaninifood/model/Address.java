@@ -1,5 +1,7 @@
 package br.com.stefanini.stefaninifood.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -19,7 +21,8 @@ public class Address {
     private String gia;
     private String ddd;
     private String siafi;
-    @OneToOne(mappedBy = "address")
+    @JsonIgnore
+    @ManyToOne
     private Consumer consumer;
 
     public String getCep() {
@@ -130,8 +133,8 @@ public class Address {
     public String toString() {
         if(logradouro.isEmpty() || numero.toString().isEmpty() || localidade.isEmpty() || uf.isEmpty())
             return "Endereço não informado pelo usuário";
-        return "Endereço: " + logradouro +", "+ numero +
-                ", Cidade: " + localidade + ", " + uf;
+        return logradouro +", "+ numero +
+                " - " + localidade + " - " + uf + " id =" + id;
     }
 
 //    {

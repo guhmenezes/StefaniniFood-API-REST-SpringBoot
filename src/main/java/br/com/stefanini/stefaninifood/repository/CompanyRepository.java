@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 public interface CompanyRepository extends JpaRepository<Company,Long> {
 
@@ -30,7 +31,7 @@ public interface CompanyRepository extends JpaRepository<Company,Long> {
     List<Object[]> findAllOrders();
 
     @Query(value = "SELECT c.* FROM PRODUCT p inner join company c on c.id = p.company_id where p.id = ?1 ;" , nativeQuery = true)
-    Company findCompanyByProduct(Long id);
+    Optional<Company> findCompanyByProduct(Long id);
 
     @Query(value = "SELECT p.* from product p inner join company c on p.company_id = c.id where c.id = ?1; ", nativeQuery = true)
     List<Product> findProductsById(Long id);

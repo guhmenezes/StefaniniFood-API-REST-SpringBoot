@@ -12,11 +12,14 @@ public class ProductDTO {
     private Double price;
     private String description;
 
+    private String company;
+
     public ProductDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.description = product.getDescription();
+        this.company = product.getCompany().getName();
     }
 
     public static List<ProductDTO> converter(List<Product> products){
@@ -53,5 +56,13 @@ public class ProductDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 }

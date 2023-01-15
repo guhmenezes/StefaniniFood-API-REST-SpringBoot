@@ -12,7 +12,7 @@ public class OrderedItens {
     private Double unitPrice;
     private Integer qty;
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Order order;
     @JsonIgnore
     @ManyToOne

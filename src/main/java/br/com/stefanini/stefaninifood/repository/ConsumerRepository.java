@@ -24,4 +24,9 @@ public interface ConsumerRepository extends JpaRepository<Consumer,Long> {
 
     @Query(value = "select c.* from consumer c INNER JOIN _order o ON o.consumer_id = c.id where o.id = ?1", nativeQuery = true)
     Consumer findConsumerByOrderId(BigInteger id);
+
+    @Query(value = "SELECT COUNT(*) FROM CONSUMER WHERE EMAIL = ?1", nativeQuery = true)
+    Integer hasRegistry(String email);
+
+    Optional<Consumer> findByEmail(String username);
 }

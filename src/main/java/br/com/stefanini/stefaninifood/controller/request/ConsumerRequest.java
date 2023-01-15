@@ -6,6 +6,7 @@ import br.com.stefanini.stefaninifood.model.Consumer;
 import br.com.stefanini.stefaninifood.repository.AddressRepository;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.*;
@@ -24,7 +25,7 @@ public class ConsumerRequest {
     private String phone;
     @DecimalMax("9999")
     private Integer number;
-    @NotNull @NotBlank @Length(min = 8, max = 9)
+    @Length(min = 8, max = 9)
     private String zipCode;
 
     public String getName() {
@@ -84,10 +85,17 @@ public class ConsumerRequest {
     }
 
     public Consumer toModel(AddressRepository addressRepository){
-        RestTemplate rt = new RestTemplate();
-        Address address = rt.getForObject("https://viacep.com.br/ws/"+zipCode.replaceAll("[^a-zA-Z0-9]", "")+"/json", Address.class);
-        address.setNumero(number);
-            addressRepository.save(address);
-        return new Consumer(name,cpf,email,phone,password, address);
+//        RestTemplate rt = new RestTemplate();
+//        Address address;
+//        try {
+//            address = rt.getForObject("https://viacep.com.br/ws/" + zipCode.replaceAll("[^a-zA-Z0-9]", "") + "/json", Address.class);
+//            address.setNumero(number);
+//        } catch (Exception e) {
+//            address = new Address();
+//        }
+//        addressRepository.save(address);
+        this.password = new BCryptPasswordEncoder().encode(password);
+        return new Consumer(name,cpf,email,phone,password);
+
     }
 }

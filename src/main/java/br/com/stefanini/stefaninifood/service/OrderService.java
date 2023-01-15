@@ -9,9 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class OrderService {
@@ -42,19 +44,34 @@ public class OrderService {
     }
 
     public ResponseEntity<?> addItem(OrderedItensRequest orderedItensRequest){
-        try {
-            OrderedItens orderedItens = orderedItensRequest.toModel(consumerRepository, productRepository, orderRepository);
-            orderedItensRepository.save(orderedItens);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new OrderedItensDTO(orderedItens));
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro no Body Request. Verifique ID's informados");
-        }
+//        try {
+            boolean sameCompany;
+            List<Object[]> itens = orderedItensRepository.findCartByConsumerId(orderedItensRequest.getConsumerId());
+            if(itens.size() > 0) {
+                System.out.println("service" + orderedItensRequest.toString());
+                Company company = companyRepository.findCompanyByProduct(orderedItensRequest.getProductId()).get();
+                sameCompany = itens.stream().anyMatch(i -> i[7].toString().equals(company.getId().toString()));
+                if (sameCompany) {
+                    OrderedItens orderedItens = orderedItensRequest.toModel(consumerRepository, productRepository, orderRepository);
+//                    orderedItensRepository.save(orderedItens);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(new OrderedItensDTO(orderedItens));
+                } else {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(itens.get(0)[6]);
+                }
+            } else {
+                OrderedItens orderedItens = orderedItensRequest.toModel(consumerRepository, productRepository, orderRepository);
+//                orderedItensRepository.save(orderedItens);
+                return ResponseEntity.status(HttpStatus.CREATED).body(new OrderedItensDTO(orderedItens));
+            }
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro no Body Request. Verifique ID's informados");
+//        }
     }
 
     public ResponseEntity<?> cartByConsumerId(Long id){
         List<Object[]> itens = orderedItensRepository.findCartByConsumerId(id);
         if(itens.size() == 0){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrinho vazio ou cliente inexistente");
+            return ResponseEntity.status(HttpStatus.OK).body("Carrinho vazio ou cliente inexistente");
         }
         return ResponseEntity.status(HttpStatus.OK).body(CartDTO.converter(itens));
     }
@@ -64,7 +81,7 @@ public class OrderService {
         if (consumer.isPresent()) {
             if (!(consumer.get().getAddress().toString().equals("Endereço não informado pelo usuário") ||
                     consumer.get().getAddress() == null)) {
-                List<Order> itens = orderRepository.findByConsumerId(id);
+                List<Order> itens = orderRepository.findWaitingOrdersByConsumerId(id);
                 itens.forEach((i) -> {
                     System.out.println(i.getTotal());
                     i.setStatus(StatusOrder.EM_PREPARACAO);
@@ -74,7 +91,7 @@ public class OrderService {
                 List<BuyDTO> buyDTO = BuyDTO.converter(bought);
                 buyDTO = buyDTO.stream().peek((o) -> {
                     System.out.println((o.getProductId()).getClass().getSimpleName());
-                Company company = companyRepository.findCompanyByProduct(o.getProductId());
+                Company company = companyRepository.findCompanyByProduct(o.getProductId()).get();
                 Long companyId = company.getId();
                 List<Object[]> companyDemand = companyRepository.findOrdersByCompanyId(companyId);
                 o.setEstimatedTime(companyDemand.size() * 3);
@@ -88,10 +105,23 @@ public class OrderService {
 
     public ResponseEntity<?> removeProduct(Long id){
         try {
-//            Order order = orderRepository.findById(id).get();
 //            Consumer consumer = consumerRepository.findConsumerByOrderId(BigInteger.valueOf(id));
 //            order.setConsumer(null);
-            orderRepository.deleteById(id);
+//            Long orderId = orderedItensRepository.orderId(id);
+//            List<Order> orders = orderRepository.findWaitingOrdersByConsumerId(orderId);
+            Integer orderSize = orderedItensRepository.orderedItensSize(id);
+            System.out.println(orderSize);
+            if(orderSize == 1){
+                Long orderId = orderedItensRepository.orderId(id);
+                orderRepository.deleteById(orderId);
+            } else {
+                orderedItensRepository.deleteById(id);
+            }
+//            if(orders.size() <= 1){
+//                orderRepository.deleteById(orders.get(0).getId());
+//                System.out.println("apagou pedido");
+//            }
+//            orderRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body("Produto removido");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");
@@ -106,4 +136,30 @@ public class OrderService {
         return companyDTO;
     }
 
+    public ResponseEntity<?> retrieveProduct(Long id) {
+        Product product = productRepository.findById(id).get();
+        return ResponseEntity.status(HttpStatus.OK).body(product);
+    }
+
+    public ResponseEntity<?> updateProduct(Long id, Integer qty) {
+        OrderedItens orderedItens = orderedItensRepository.findById(id).get();
+        orderedItens.setQty(qty);
+        orderedItensRepository.save(orderedItens);
+        return ResponseEntity.status(HttpStatus.OK).body(orderedItens);
+    }
+
+    public ResponseEntity<?> clearCart(Long id){
+        orderRepository.deleteByConsumerId(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    public ResponseEntity<?> addItens(List<OrderedItensRequest> orderedItensRequest) {
+        Optional<Consumer> consumer = consumerRepository.findById(orderedItensRequest.get(0).getConsumerId());
+        if(consumer.isPresent()) {
+            Order order = new Order(consumer.get());
+            Stream<Order> orderStream = orderedItensRequest.stream().map(o -> o.toDatabase(productRepository, order, orderRepository));
+            return ResponseEntity.status(HttpStatus.OK).body(orderStream);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Deu ruim");
+    }
 }

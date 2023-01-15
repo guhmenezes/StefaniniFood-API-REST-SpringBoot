@@ -1,9 +1,6 @@
 package br.com.stefanini.stefaninifood.service;
 
-import br.com.stefanini.stefaninifood.controller.dto.AddressDTO;
-import br.com.stefanini.stefaninifood.controller.dto.BuyDTO;
-import br.com.stefanini.stefaninifood.controller.dto.CartDTO;
-import br.com.stefanini.stefaninifood.controller.dto.ConsumerDTO;
+import br.com.stefanini.stefaninifood.controller.dto.*;
 import br.com.stefanini.stefaninifood.controller.request.ConsumerAddressRequest;
 import br.com.stefanini.stefaninifood.controller.request.ConsumerEditRequest;
 import br.com.stefanini.stefaninifood.controller.request.ConsumerRequest;
@@ -18,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,36 +34,36 @@ public class ConsumerService {
     public ResponseEntity<?> retrieveAll(){
         try {
             List<Consumer> list = consumerRepository.findAll();
-            if(list.size() > 0) {
-                List<ConsumerDTO> consumers = list.stream().map((c)->getAllOrders(c)).collect(Collectors.toList());
-                return ResponseEntity.status(HttpStatus.OK).body(consumers);
-            }
-            return ResponseEntity.status(HttpStatus.OK).body("Nenhum cliente se cadastrou ainda. Que tal ser o primeiro?");
+                return ResponseEntity.status(HttpStatus.OK).body(list);
+//            if(list.size() > 0) {
+//                List<ConsumerDTO> consumers = list.stream().map((c)->getAllOrders(c)).collect(Collectors.toList());
+//            }
+//            return ResponseEntity.status(HttpStatus.OK).body("Nenhum cliente se cadastrou ainda. Que tal ser o primeiro?");
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Erro no servidor. Tente novamente em breve!");
         }
     }
 
-    public ResponseEntity<?> retrieveByCpf(String cpf) {
-        try {
-            Consumer consumer = consumerRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            ConsumerDTO consumerDTO = getAllOrders(consumer);
-            return ResponseEntity.status(HttpStatus.OK).body(consumerDTO);
-//            return ResponseEntity.status(HttpStatus.OK).body(ConsumerDTO.converter(Arrays.asList(consumer)));
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
-        }
+    public ResponseEntity<?> retrieveByLogin(String login) {
+//        try {
+            Consumer consumer = consumerRepository.findByEmail(login).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+//            ConsumerDTO consumerDTO = getAllOrders(consumer);
+//            return ResponseEntity.status(HttpStatus.OK).body(consumerDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(new ConsumerDTO(consumer));
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+//        }
     }
 
     public ResponseEntity<?> createConsumer(ConsumerRequest consumerRequest) {
-        try {
+//        try {
             Consumer consumer = consumerRequest.toModel(addressRepository);
             consumerRepository.save(consumer);
             ConsumerDTO consumerDTO = new ConsumerDTO(consumer);
             return ResponseEntity.status(HttpStatus.CREATED).body(consumerDTO);
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CPF já cadastrado");
-        }
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CPF já cadastrado.");
+//        }
     }
 
     public ResponseEntity<?> updateConsumer(String cpf, ConsumerEditRequest consumerRequest){
@@ -78,13 +77,13 @@ public class ConsumerService {
     }
 
     public ResponseEntity<?> updateAddress(Long id , ConsumerAddressRequest addressRequest){
-        try {
-            Address address = addressRequest.update(id, consumerRepository);
+//        try {
+            Address address = addressRequest.update(id, addressRepository);
             addressRepository.save(address);
             return ResponseEntity.status(HttpStatus.OK).body(AddressDTO.converter(address));
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
-        }
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+//        }
     }
 
     public ResponseEntity<?> deleteConsumerByCpf(String cpf) {
@@ -117,24 +116,52 @@ public class ConsumerService {
             consumer.setActive(true);
             consumer.setDeactivedAt(null);
             consumerRepository.save(consumer);
-            ConsumerDTO consumerDTO = getAllOrders(consumer);
-            return ResponseEntity.status(HttpStatus.OK).body(consumerDTO);
+//            ConsumerDTO consumerDTO = getAllOrders(consumer);
+            return ResponseEntity.status(HttpStatus.OK).body(consumer);
         } catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário já ativo ou inexistete");
         }
     }
 
-    public ConsumerDTO getAllOrders(Consumer consumer){
-        List<Object[]> itens = orderedItensRepository.findAllByConsumerId(consumer.getId());
-        List<CartDTO> cart = CartDTO.converter(itens);
-        ConsumerDTO consumerDTO = new ConsumerDTO(consumer);
-        consumerDTO.setOrders(cart);
-        return consumerDTO;
+    public ResponseEntity<?> getAllOrders(Long id){
+        List<Object[]> itens = orderedItensRepository.findAllOrdersByConsumerId(id);
+        List<OrdersDTO> orders = OrdersDTO.converter(itens);
+//        ConsumerDTO consumerDTO = new ConsumerDTO(consumer);
+//        consumerDTO.setOrders(cart);
+        Map<BigInteger, List<OrdersDTO>> groupById = orders.stream().collect(Collectors.groupingBy(OrdersDTO::getOrderId, Collectors.toList()));
+        return ResponseEntity.status(HttpStatus.OK).body(groupById);
     }
 
     public ResponseEntity<?> retrieveOrders(Long id) {
         List<OrderedItens> bought = orderedItensRepository.findBoughtByConsumerId(id);
         List<BuyDTO> buyDTO = BuyDTO.converter(bought);
         return ResponseEntity.status(HttpStatus.OK).body(buyDTO);
+    }
+
+    public ResponseEntity<?> getItem(Long id) {
+        OrderedItens item = orderedItensRepository.findById(id).get();
+        return ResponseEntity.status(HttpStatus.OK).body(item);
+    }
+
+    public ResponseEntity<?> addAddress(ConsumerAddressRequest addressRequest) {
+//        try {
+        System.out.println(addressRequest);
+            Integer hasRegistry = addressRepository.hasRegistry(addressRequest.getIdConsumer(), addressRequest.getZipCode(), addressRequest.getNumber());
+            if (hasRegistry == 0) {
+                Address address = addressRequest.toModel(consumerRepository, addressRepository);
+                addressRepository.save(address);
+                return ResponseEntity.status(HttpStatus.OK).body(AddressDTO.converter(address));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(addressRepository.getId(addressRequest.getIdConsumer(), addressRequest.getZipCode(), addressRequest.getNumber()));
+            }
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+//        }
+    }
+
+    public ResponseEntity<?> hasRegistry(String email) {
+        Integer hasRegistry = consumerRepository.hasRegistry(email);
+        if (hasRegistry > 0) return ResponseEntity.status(HttpStatus.OK).build();
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

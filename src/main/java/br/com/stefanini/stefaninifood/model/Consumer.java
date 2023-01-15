@@ -1,16 +1,23 @@
 package br.com.stefanini.stefaninifood.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import static javax.persistence.FetchType.EAGER;
-
 @Entity
-public class Consumer {
+public class Consumer implements UserDetails {
 //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue
@@ -21,6 +28,8 @@ public class Consumer {
     @NotNull
     @Column(unique = true)
     private String cpf;
+    @NotNull
+    @Column(unique = true)
     private String email;
     private String phone;
     private String password;
@@ -28,9 +37,12 @@ public class Consumer {
 
     @OneToMany(mappedBy = "consumer", cascade = CascadeType.ALL)
     private List<Order> order;
-    @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL)
-    private Address address;
+
+    @OneToMany(mappedBy = "consumer", cascade = CascadeType.ALL)
+    private List<Address> address;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Profile> profiles = new ArrayList<>();
 
     private Boolean active = true;
 
@@ -39,6 +51,16 @@ public class Consumer {
     public Consumer(){
 
     }
+
+    public Consumer(String name, String cpf, String email, String phone, String password) {
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Consumer(String name, String cpf, String email, String phone, String password, Address address) {
         this.name = name;
         this.cpf = cpf;
@@ -46,7 +68,7 @@ public class Consumer {
         this.phone = phone;
         this.password = password;
         this.createdAt = LocalDateTime.now();
-        this.address = address;
+        this.address.add(address);
     }
 
     public Long getId() {
@@ -89,11 +111,11 @@ public class Consumer {
         this.phone = phone;
     }
 
-    public String getPassword() {
+    public String getPass() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPass(String password) {
         this.password = password;
     }
 
@@ -111,12 +133,12 @@ public class Consumer {
 //    }
 
 
-    public Address getAddress() {
+    public List<Address> getAddress() {
         return address;
     }
 
     public void setAddress(Address address) {
-        this.address = address;
+        this.address.add(address);
     }
 
     public LocalDateTime getCreated() {
@@ -146,6 +168,49 @@ public class Consumer {
 
     public void setDeactivedAt(LocalDateTime deactivedAt) {
         this.deactivedAt = deactivedAt;
+    }
+
+    public List<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<Profile> profiles) {
+        this.profiles = profiles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.profiles;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
 }

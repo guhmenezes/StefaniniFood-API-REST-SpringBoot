@@ -29,17 +29,29 @@ public class ConsumerController {
         return response;
     }
 
-    @GetMapping("/usuario/{cpf}")
-    @ApiOperation(value = "Retorna um cliente ativo e seus respectivos pedidos pelo CPF.")
-    public ResponseEntity<?> retrieveByCpf(@PathVariable("cpf") String cpf) {
-        ResponseEntity<?> response = service.retrieveByCpf(cpf);
+    @GetMapping("/usuario/{login}")
+    @ApiOperation(value = "Retorna um cliente ativo e seus respectivos pedidos pelo login.")
+    public ResponseEntity<?> retrieveByCpf(@PathVariable("login") String login) {
+        ResponseEntity<?> response = service.retrieveByLogin(login);
         return response;
     }
 
     @GetMapping("/usuario/pedidos/{id}")
     @ApiOperation(value = "Retorna uma lista com os pedidos do cliente ativo pelo ID.")
     public ResponseEntity<?> retrieveOrders(@PathVariable Long id){
-        ResponseEntity<?> response = service.retrieveOrders(id);
+        ResponseEntity<?> response = service.getAllOrders(id);
+        return response;
+    }
+
+    @GetMapping("/usuario/pedidos/item/{id}")
+    public ResponseEntity<?> retrieveItem(@PathVariable Long id){
+        ResponseEntity<?> response = service.getItem(id);
+        return response;
+    }
+
+    @GetMapping("/usuario/hasRegistry")
+    public ResponseEntity<?> hasRegistry(@RequestParam String email) {
+        ResponseEntity<?> response = service.hasRegistry(email);
         return response;
     }
 
@@ -61,6 +73,13 @@ public class ConsumerController {
     @ApiOperation(value = "Atualiza o endereço do cliente pelo ID.")
     public ResponseEntity<?> updateAddress(@PathVariable Long id , @RequestBody @Valid ConsumerAddressRequest addressRequest){
         ResponseEntity<?> response = service.updateAddress(id, addressRequest);
+        return response;
+    }
+
+    @PostMapping("/usuario/endereco")
+//    @ApiOperation(value = "Atualiza o endereço do cliente pelo ID.")
+    public ResponseEntity<?> addAddress(@RequestBody @Valid ConsumerAddressRequest addressRequest){
+        ResponseEntity<?> response = service.addAddress(addressRequest);
         return response;
     }
 

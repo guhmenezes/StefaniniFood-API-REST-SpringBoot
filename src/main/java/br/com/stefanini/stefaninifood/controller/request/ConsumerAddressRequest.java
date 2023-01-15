@@ -1,6 +1,8 @@
 package br.com.stefanini.stefaninifood.controller.request;
 
 import br.com.stefanini.stefaninifood.model.Address;
+import br.com.stefanini.stefaninifood.model.Consumer;
+import br.com.stefanini.stefaninifood.repository.AddressRepository;
 import br.com.stefanini.stefaninifood.repository.ConsumerRepository;
 import org.hibernate.validator.constraints.Length;
 
@@ -8,8 +10,11 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 public class ConsumerAddressRequest {
+
+    private Long idConsumer;
     @NotNull
     @NotBlank @Length(min = 8, max = 9)
     private String zipCode;
@@ -83,8 +88,16 @@ public class ConsumerAddressRequest {
         this.uf = uf;
     }
 
-    public Address update(Long id, ConsumerRepository consumerRepository) {
-        Address address = consumerRepository.findById(id).get().getAddress();
+    public Long getIdConsumer() {
+        return idConsumer;
+    }
+
+    public void setIdConsumer(Long idConsumer) {
+        this.idConsumer = idConsumer;
+    }
+
+    public Address update(Long id, AddressRepository repository) {
+        Address address = repository.findByIdAndConsumerId(id, idConsumer);
         address.setCep(zipCode);
         address.setLogradouro(street);
         address.setNumero(number);
@@ -93,5 +106,19 @@ public class ConsumerAddressRequest {
         address.setLocalidade(city);
         address.setUf(uf);
         return address;
+    }
+
+    public Address toModel(ConsumerRepository cr, AddressRepository ar) {
+            Address address = new Address();
+            address.setCep(zipCode);
+            address.setLogradouro(street);
+            address.setNumero(number);
+            address.setComplemento(complement);
+            address.setBairro(district);
+            address.setLocalidade(city);
+            address.setUf(uf);
+            Consumer customer = cr.findById(idConsumer).get();
+            address.setConsumer(customer);
+            return address;
     }
 }

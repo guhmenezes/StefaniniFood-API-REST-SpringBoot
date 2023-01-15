@@ -1,11 +1,13 @@
 package br.com.stefanini.stefaninifood.controller.dto;
 
+import br.com.stefanini.stefaninifood.model.Address;
 import br.com.stefanini.stefaninifood.model.Consumer;
 import br.com.stefanini.stefaninifood.model.Order;
 import br.com.stefanini.stefaninifood.model.OrderedItens;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +17,7 @@ public class ConsumerDTO {
     private String name;
     private String cpf;
     private LocalDateTime createdAt;
-    private String address;
+    private List<String> address = new ArrayList<>();
 
     private List<CartDTO> orders = new ArrayList<>();
 
@@ -25,9 +27,12 @@ public class ConsumerDTO {
         this.cpf = consumer.getCpf();
         this.createdAt = consumer.getCreated();
         try {
-            this.address = consumer.getAddress().toString();
+            for (Address a : consumer.getAddress()) {
+                this.address.add(a.toString());
+            }
+//            this.address = consumer.getAddress();
         } catch (Exception e){
-            this.address = "Endereço não localizado";
+//            this.address = Collections.singletonList("Endereço não localizado");
         }
 
 //        this.orders = consumer.getOrder();
@@ -71,12 +76,12 @@ public class ConsumerDTO {
         this.createdAt = createdAt;
     }
 
-    public String getAddres() {
+    public List<String> getAddress() {
         return address;
     }
 
-    public void setAddres(String addres) {
-        this.address = addres;
+    public void setAddress(List<String> address) {
+        this.address = address;
     }
 
     public List<CartDTO> getOrders() {

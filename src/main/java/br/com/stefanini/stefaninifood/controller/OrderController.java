@@ -37,10 +37,32 @@ public class OrderController {
         return response;
     }
 
+    @GetMapping("/item/{id}")
+    public ResponseEntity<?> retrieveProduct(@PathVariable Long id){
+        ResponseEntity<?> response = service.retrieveProduct(id);
+        return response;
+    }
+
+    @Transactional
+    @PutMapping("/item/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestParam Integer qty){
+        ResponseEntity<?> response = service.updateProduct(id, qty);
+        return response;
+    }
+
     @PostMapping("/item")
+    @Transactional
     @ApiOperation(value = "Cria/Adiciona um produto no carrinho do cliente pelo ID do cliente e ID do produto.")
     public ResponseEntity<?> addItem(@RequestBody OrderedItensRequest orderedItensRequest){
         ResponseEntity<?> response = service.addItem(orderedItensRequest);
+        return response;
+    }
+
+    @Transactional
+    @PostMapping("/itens")
+    @ApiOperation(value = "Cria/Adiciona uma lista de produtos no carrinho do cliente pelo ID do cliente e ID do produto.")
+    public ResponseEntity<?> addItens(@RequestBody List<OrderedItensRequest> orderedItensRequest){
+        ResponseEntity<?> response = service.addItens(orderedItensRequest);
         return response;
     }
 
@@ -64,6 +86,14 @@ public class OrderController {
     @ApiOperation(value = "Remove um produto do carrinho do cliente pelo ID do pedido.")
     public ResponseEntity<?> removeProduct(@PathVariable("idOrder") Long id){
         ResponseEntity<?> response = service.removeProduct(id);
+        return response;
+    }
+
+    @DeleteMapping("/order/{consumerId}")
+    @Transactional
+    @ApiOperation(value = "Remove todos os produtos do carrinho do cliente pelo ID do pedido.")
+    public ResponseEntity<?> removeAllProducts(@PathVariable("consumerId") Long id){
+        ResponseEntity<?> response = service.clearCart(id);
         return response;
     }
 
