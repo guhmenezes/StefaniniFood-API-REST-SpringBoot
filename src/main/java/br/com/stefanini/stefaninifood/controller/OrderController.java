@@ -30,7 +30,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @Cacheable(value = "menu")
+//    @Cacheable(value = "menu")
     @ApiOperation(value = "Retorna o cardápio de uma empresa pelo ID")
     public ResponseEntity<?> retrieveMenuByIdCompany(@PathVariable Long id){
         ResponseEntity<?> response = service.retrieveMenuByIdCompany(id);
