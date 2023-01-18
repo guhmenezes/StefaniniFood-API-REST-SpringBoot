@@ -69,7 +69,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200")
+                        .allowedOrigins("http://localhost:4200","https://snazzy-empanada-02955a.netlify.app:80")
                         .allowedMethods("*");
             }
         };
